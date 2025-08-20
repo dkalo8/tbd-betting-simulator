@@ -6,6 +6,17 @@ const REGION = 'us';
 const MARKETS = 'h2h'; // ML odds
 const FORMAT = 'american' // American ML odds
 
+// helper that adds key + default params
+function withDefaults(params = {}) {
+  return {
+    apiKey: API_KEY,
+    regions: REGION,
+    markets: MARKETS,
+    oddsFormat: FORMAT,
+    ...params, // allow overrides (e.g., eventIds, bookmakers, etc.)
+  };
+}
+
 const client = axios.create({
     baseURL: API_BASE,
     timeout: 15000,
@@ -45,16 +56,15 @@ export async function listSports(all = true) {
     return getWithRetry('/sports', { params: { all } }, { label: 'sports' });
 }
 
-export async function fetchOddsForSport(sportKey) {
-    return getWithRetry(
-        `/sports/${sportKey}/odds`,
-        { params: {
-            regions: REGION,
-            markets: MARKETS,
-            oddsFormat: FORMAT,
-            dateFormat: 'iso'
-        } }, { label: `odds:${sportKey}` }
-    );
+export async function fetchOddsForSport({
+  sportKey,
+  regions, markets, oddsFormat,
+  eventIds, bookmakers,
+} = {}) {
+  const params = withDefaults({ regions, markets, oddsFormat, eventIds, bookmakers });
+  const { data, headers } = await getWithRetry(`${API_BASE}/sports/${sportKey}/odds`, { params });
+  logQuota(`odds:${sportKey}`, headers); // you already log x-requests-used/remaining
+  return { data, headers };
 }
 
 export async function fetchScoresForSport(
@@ -68,8 +78,8 @@ export async function fetchScoresForSport(
     );
 
     return (data ?? []).map((g) => {
-        const home = g.scores?.find(t => t.name === g.home_team)?.score;
-        const away = g.scores?.find(t => t.name === g.away_team)?.score;
+        const home = g.scores?.find(team => team.name === g.home_team)?.score;
+        const away = g.scores?.find(team => team.name === g.away_team)?.score;
         const completed = Boolean(g.completed);
         const status = completed 
             ? 'completed' : (g.scores ? 'in_progress' : 'scheduled');

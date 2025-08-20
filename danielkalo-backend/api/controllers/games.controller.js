@@ -1,5 +1,6 @@
 import Game from '../src/models/Game.js';
 import { prettyLeagueTitle, SOCCER_ALLOW, TENNIS_PREFIXES } from '../utilities/leagueTitles.js';
+import { moneylineToProb } from '../../utilities/simulationUtilities.js';
 
 class GamesController {
   static async apiGetGames(req, res) {
@@ -68,6 +69,20 @@ class GamesController {
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
+  }
+
+  static async apiGetBookmakerOdds(req, res) {
+    const game = await Game.findById(req.params.id).lean();
+    if (!game) return res.status(404).json({ error: "Not Found" });
+    const rows = (game.bookmakerOdds || []).map(book => ({
+      bookmaker: book.bookmaker,
+      homeML: book.h2h.homeML,
+      awayML: book.h2h.awayML,
+      drawML: book.h2h.drawML,
+      impliedHome: book.h2h.homeML != null ? moneylineToProb(book.h2h.homeML) : null,
+      impliedAway: book.h2h.awayML != null ? moneylineToProb(book.h2h.awayML) : null,
+    }));
+    res.json({ rows, updatedAt: game.lastUpdated, startTime: game.startTime });
   }
 }
 

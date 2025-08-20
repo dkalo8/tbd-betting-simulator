@@ -21,7 +21,7 @@ export function runMonteCarlo(game, params = {}) {
   const baseZ = logit(baseP);
 
   // 2) Trials
-  const trials = Math.max(1000, Math.min(500_000, Number(params.trials) || 10000));
+  const trials = Math.max(1, Number(params.trials ?? 100_000)); // default 100k
 
   // 3) Recent form (defaults to 0.5/0.5 if missing)
   const homeRecent = clamp(game.recentForm?.home ?? 0.5);
