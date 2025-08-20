@@ -15,6 +15,16 @@ const ExtSchema = new mongoose.Schema({
   id: String // provider's event ID
 }, {_id: false});
 
+const BookmakerPriceSchema = new mongoose.Schema({
+  bookmaker: String,
+  lastUpdate: Date,
+  h2h: {
+    homeML: Number,
+    awayML: Number,
+    drawML: Number,
+  }
+}, { _id: false });
+
 const GameSchema = new mongoose.Schema({
   sport: { type: String, enum: ['NBA','NFL','Soccer','Tennis'], required: true },
   league: String,
@@ -26,6 +36,7 @@ const GameSchema = new mongoose.Schema({
   marketOdds: OddsSchema,
   recentForm: RecentFormSchema,
   ext: ExtSchema,
+  bookmakerOdds: [BookmakerPriceSchema],
   lastUpdated: Date,
   status: String,
   score: { home: Number, away: Number },
