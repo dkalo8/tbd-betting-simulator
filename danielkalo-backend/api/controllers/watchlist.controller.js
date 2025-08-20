@@ -1,4 +1,4 @@
-import WatchlistDAO from "../dao/watchlistDAO.js";
+import WatchlistDAO from "../../dao/watchlistDAO.js";
 
 const getUserId = (req) =>
   req.user?._id || req.user?.sub || req.user?.userId || req.user;

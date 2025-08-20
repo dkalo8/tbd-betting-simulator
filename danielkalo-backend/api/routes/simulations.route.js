@@ -1,5 +1,5 @@
 import express from "express";
-import SimulationsController from "../controllers/simulations.controller";
+import SimulationsController from "../controllers/simulations.controller.js";
 
 const router = express.Router();
 

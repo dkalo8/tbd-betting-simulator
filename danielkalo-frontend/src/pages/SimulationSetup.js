@@ -1,7 +1,9 @@
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Container, Card, Form, Button, Alert } from 'react-bootstrap';
+
 import SimsService from '../services/sims';
+import BookmakerOddsList from '../components/BookmakerOddsList';
 
 function SimulationSetup() {
   const { id: gameId } = useParams();
@@ -11,6 +13,7 @@ function SimulationSetup() {
   const [awayFormWeight, setAwayFW] = useState(0.5);
   const [trials, setTrials] = useState(10000);
   const [result, setResult] = useState(null);
+  const [bmRows, setBmRows] = useState(null); // bookmaker rows
   const [teams, setTeams] = useState({
     home: state?.home || "",
     away: state?.away || "",
@@ -34,15 +37,23 @@ function SimulationSetup() {
       const saved = await SimsService.createSimulation({
         gameId,
         params: { homeFormWeight, awayFormWeight, trials },
+        includeOdds: true,
       });
       if (saved?.result) {
         setResult(saved.result);
         setTeams({ home: saved.home ?? "", away: saved.away ?? "" });
+        setBmRows(saved.bookmakerTable ?? null);
       } else if (saved?._id || saved?.insertedId) {
         const id = saved._id || saved.insertedId;
         const full = await SimsService.getSimulationById(id);
         setResult(full?.result ?? null);
         setTeams({ home: full?.home ?? "", away: full?.away ?? "" });
+        // Odds: pull on demand if not included
+        try {
+          const res = await fetch(`/api/games/${gameId}/odds`);
+          const price = await res.json();
+          setBmRows(price.rows || null);
+        } catch {}
       }
     } catch (err) {
       console.error("Simulation failed", err);
@@ -68,7 +79,7 @@ function SimulationSetup() {
 
         <Form.Group className="mb-4">
           <Form.Label>Trials: {trials.toLocaleString()}</Form.Label>
-          <Form.Range min={1000} max={20000} step={1000}
+          <Form.Range min={1000} max={100000} step={5000}
             value={trials} onChange={e => setTrials(Number(e.target.value))}/>
         </Form.Group>
 
@@ -82,6 +93,15 @@ function SimulationSetup() {
               <span className="mx-2">·</span>
               <span>{teams.away || "Away"} {Math.round(result.awayWinPct * 100)}%</span>
             </div>
+
+            {/* NEW: bookmaker odds inline */}
+            {bmRows?.length > 0 && (
+              <div className="mt-2 p-2 rounded bg-white text-body">
+                <div className="small fw-semibold mb-1">Bookmaker Odds</div>
+                <BookmakerOddsList rows={bmRows} />
+                <div className="text-muted small mt-1">Best prices bolded.</div>
+              </div>
+            )}
           </Alert>
         )}
 

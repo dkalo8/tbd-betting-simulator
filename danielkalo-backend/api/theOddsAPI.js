@@ -6,7 +6,7 @@ const REGION = 'us';
 const MARKETS = 'h2h'; // ML odds
 const FORMAT = 'american' // American ML odds
 
-// helper that adds key + default params
+// Helper that adds key + default params
 function withDefaults(params = {}) {
   return {
     apiKey: API_KEY,
@@ -23,12 +23,19 @@ const client = axios.create({
     params: { apiKey: API_KEY},
 });
 
+let lastRemaining = null;
+export function shouldThrottle() {
+  if (lastRemaining == null) return false;
+  return lastRemaining <= 0 || lastRemaining < 10; // simple guard
+}
+
 export function logQuota(label, headers = {}) {
-    const used = Number(headers['x-requests-used'] ?? 0);
-    const remaining = Number(headers['x-requests-remaining'] ?? 0);
-    if (!Number.isNaN(used) || !Number.isNaN(remaining)) {
-        console.log(`[quota:${label}] used = ${used}, remaining = ${remaining}`);
-    }
+  const used = Number(headers['x-requests-used'] ?? 0);
+  const remaining = Number(headers['x-requests-remaining'] ?? 0);
+  lastRemaining = Number.isFinite(remaining) ? remaining : lastRemaining;
+  if (!Number.isNaN(used) || !Number.isNaN(remaining)) {
+    console.log(`[quota:${label}] used = ${used}, remaining = ${remaining}`);
+  }
 }
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -56,15 +63,11 @@ export async function listSports(all = true) {
     return getWithRetry('/sports', { params: { all } }, { label: 'sports' });
 }
 
-export async function fetchOddsForSport({
-  sportKey,
-  regions, markets, oddsFormat,
-  eventIds, bookmakers,
-} = {}) {
+export async function fetchOddsForSport({ sportKey, regions, markets, oddsFormat, eventIds, bookmakers } = {}) {
   const params = withDefaults({ regions, markets, oddsFormat, eventIds, bookmakers });
-  const { data, headers } = await getWithRetry(`${API_BASE}/sports/${sportKey}/odds`, { params });
-  logQuota(`odds:${sportKey}`, headers); // you already log x-requests-used/remaining
-  return { data, headers };
+  const res = await client.get(`/sports/${sportKey}/odds`, { params }); // <-- direct
+  logQuota(`odds:${sportKey}`, res.headers);
+  return { data: res.data, headers: res.headers };
 }
 
 export async function fetchScoresForSport(

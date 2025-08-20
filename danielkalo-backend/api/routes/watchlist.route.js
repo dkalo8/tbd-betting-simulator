@@ -1,5 +1,5 @@
 import express from "express";
-import WatchlistController from "../controllers/watchlist.controller";
+import WatchlistController from "../controllers/watchlist.controller.js";
 
 const router = express.Router();
 

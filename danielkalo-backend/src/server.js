@@ -9,10 +9,10 @@ import { verifyGoogleToken } from './auth.js';
 import SimulationsDAO from '../dao/simulationsDAO.js';
 import WatchlistDAO from '../dao/watchlistDAO.js';
 
-import simulationsRouter from '../api/simulations.route.js';
-import gamesRouter from '../api/games.route.js';
-import watchlistRouter from '../api/watchlist.route.js';
-import adminRouter from '../api/admin.route.js';
+import simulationsRouter from '../api/routes/simulations.route.js';
+import gamesRouter from '../api/routes/games.route.js';
+import watchlistRouter from '../api/routes/watchlist.route.js';
+import adminRouter from '../api/routes/admin.route.js';
 
 const app = express();
 

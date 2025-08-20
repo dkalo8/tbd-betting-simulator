@@ -1,5 +1,5 @@
-import Game from '../src/models/Game.js';
-import { prettyLeagueTitle, SOCCER_ALLOW, TENNIS_PREFIXES } from '../utilities/leagueTitles.js';
+import Game from '../../src/models/Game.js';
+import { prettyLeagueTitle, SOCCER_ALLOW, TENNIS_PREFIXES } from '../../utilities/leagueTitles.js';
 import { moneylineToProb } from '../../utilities/simulationUtilities.js';
 
 class GamesController {

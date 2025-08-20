@@ -5,6 +5,7 @@ import update from 'immutability-helper';
 import SimsService from '../services/sims';
 import DndCard from '../components/DnDCard';
 import useWatchlist from '../hooks/useWatchlist';
+import SimRow from '../components/SimRow';
 
 function SavedSimulations() {
   const [sims, setSims] = useState([]);
@@ -37,50 +38,20 @@ function SavedSimulations() {
       <h3 className="fw-semibold mb-3">My Simulations</h3>
       <ListGroup>
         {sims.map((s, index) => (
-          <DndCard key={s._id} index={index} moveCard={moveCard}>
-            <ListGroup.Item className="p-3">
-              <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                {/* LEFT */}
-                <div className="d-flex align-items-center flex-wrap gap-2 text-truncate" style={{ minWidth: 0 }}>
-                  <span className="text-nowrap">{new Date(s.createdAt).toLocaleString()}</span>
-                  <span className="text-muted">•</span>
-                  <span className="text-nowrap">
-                    {(s.home ?? 'Home')} {Math.round(s.result.homeWinPct * 100)}%
-                  </span>
-                  <span className="text-muted">·</span>
-                  <span className="text-nowrap">
-                    {(s.away ?? 'Away')} {Math.round(s.result.awayWinPct * 100)}%
-                  </span>
-                </div>
-
-                {/* RIGHT */}
-                <div className="d-flex align-items-center gap-2 flex-shrink-0">
-                  <Button
-                    size="sm"
-                    className="ms-2"
-                    variant={isSavedSim(s._id) ? "outline-success" : "outline-secondary"}
-                    onClick={() => toggleSim(s)}
-                  >
-                    {isSavedSim(s._id) ? "Saved" : "Save"}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline-danger"
-                    onClick={async () => {
-                      await SimsService.deleteSimulation(s._id);
-                      setSims(curr => curr.filter(x => x._id !== s._id));
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            </ListGroup.Item>
-          </DndCard>
+          <SimRow
+            key={s._id}
+            s={s}
+            index={index}
+            moveCard={moveCard}
+            isSavedSim={isSavedSim}
+            toggleSim={toggleSim}
+            onDeleted={async (id) => {
+              await SimsService.deleteSimulation(id);
+              setSims(curr => curr.filter(x => x._id !== id));
+            }}
+          />
         ))}
-        {sims.length === 0 && (
-          <ListGroup.Item>No Simulations Yet</ListGroup.Item>
-        )}
+        {sims.length === 0 && <ListGroup.Item>No Simulations Yet</ListGroup.Item>}
       </ListGroup>
     </Container>
   );
