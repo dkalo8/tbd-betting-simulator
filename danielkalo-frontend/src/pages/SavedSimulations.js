@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Container, ListGroup, Button } from 'react-bootstrap';
+import { Container, ListGroup } from 'react-bootstrap';
 
 import update from 'immutability-helper';
 import SimsService from '../services/sims';
-import DndCard from '../components/DnDCard';
 import useWatchlist from '../hooks/useWatchlist';
 import SimRow from '../components/SimRow';
 

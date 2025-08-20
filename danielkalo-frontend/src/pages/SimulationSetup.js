@@ -1,5 +1,5 @@
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { Container, Card, Form, Button, Alert } from 'react-bootstrap';
 
 import SimsService from '../services/sims';
