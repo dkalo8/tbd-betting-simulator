@@ -1,0 +1,28 @@
+.logout-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 250px;
+  height: 30px;
+  background-color: #fff;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+  font-family: Roboto, sans-serif;
+  font-size: 14px;
+  color: #3c4043;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.logout-btn:hover {
+  background-color: #f7f8f8;
+}
+
+.logout-btn img {
+  position: absolute;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+}
